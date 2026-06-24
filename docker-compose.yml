@@ -1,9 +1,6 @@
 version: '3.8'
 
 services:
-  # ==========================================
-  # 1. BASES DE DONNÉES (Isolées par domaine)
-  # ==========================================
   db_auth:
     image: postgres:15-alpine
     container_name: agency_db_auth
@@ -28,15 +25,14 @@ services:
     networks:
       - agency_network
 
-  # ==========================================
-  # 2. MICROSERVICES BACKEND
-  # ==========================================
   auth_service:
     build: ./auth_service
     container_name: agency_auth_service
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./auth_service:/app
+    ports:
+      - "8001:8000" # ACCESSIBLE EN LOCAL SUR LE PORT 8001
     environment:
       - DB_HOST=db_auth
       - DB_USER=auth_admin
@@ -53,6 +49,8 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./queue_service:/app
+    ports:
+      - "8002:8000" # ACCESSIBLE EN LOCAL SUR LE PORT 8002
     environment:
       - DB_HOST=db_queue
       - DB_USER=queue_admin
@@ -60,30 +58,6 @@ services:
       - DB_NAME=queue_db
     depends_on:
       - db_queue
-    networks:
-      - agency_network
-
-  sync_service:
-    build: ./sync_service
-    container_name: agency_sync_service
-    # Ce service tournera en tâche de fond (worker) pour Kafka
-    command: python worker.py 
-    volumes:
-      - ./sync_service:/app
-    environment:
-      - CENTRAL_KAFKA_BROKER=kafka.siege-central.com:9092 # L'adresse du siège
-      - DB_HOST=db_queue # Il lit la DB queue pour faire ses stats
-    networks:
-      - agency_network
-
-  # ==========================================
-  # 3. FRONTEND & API GATEWAY
-  # ==========================================
-  frontend:
-    build: ./frontend_app
-    container_name: agency_frontend
-    volumes:
-      - ./frontend_app:/app
     networks:
       - agency_network
 
@@ -97,13 +71,10 @@ services:
     depends_on:
       - auth_service
       - queue_service
-      - frontend
+      # - frontend  <-- Commenté temporairement
     networks:
       - agency_network
 
-# ==========================================
-# 4. VOLUMES ET RÉSEAUX
-# ==========================================
 networks:
   agency_network:
     driver: bridge
