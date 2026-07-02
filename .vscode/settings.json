@@ -1,5 +1,8 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python.defaultInterpreterPath": "${workspaceFolder}/auth_service/venv/Scripts/python.exe",
-    "python.analysis.extraPaths": ["${workspaceFolder}/auth_service/venv/Lib/site-packages"]
+    "python.defaultInterpreterPath": "${workspaceFolder}/sync_service/venv/Scripts/python.exe",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/sync_service/venv/Lib/site-packages",
+        "${workspaceFolder}/auth_service/venv/Lib/site-packages"
+    ]
 }

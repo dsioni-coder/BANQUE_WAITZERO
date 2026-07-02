@@ -61,6 +61,21 @@ services:
     networks:
       - agency_network
 
+  sync_service:
+    build: ./sync_service
+    container_name: agency_sync_service
+    restart: always # Résilience maximale : si le conteneur plante, Docker le redémarre
+    environment:
+      - POSTGRES_DB=queue_db
+      - POSTGRES_USER=queue_admin
+      - POSTGRES_PASSWORD=secure_queue_pass
+      - DB_HOST=db_queue # Pointe vers le conteneur de la base de données de l'agence
+      - DB_PORT=5432
+    depends_on:
+      - db_queue # Empêche le démarrage si la base de données n'est pas prête
+    networks:
+      - agency_network
+
   gateway:
     image: nginx:alpine
     container_name: agency_gateway
