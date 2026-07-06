@@ -125,6 +125,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Ajoutez cette ligne pour dire à Django où stocker les fichiers :
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 # Cela configure la durée de vie des jetons d'accès (ici, 60 minutes pour le token principal, ce qui est une bonne norme de sécurité interne).
 
 REST_FRAMEWORK = {
