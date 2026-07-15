@@ -53,17 +53,17 @@ export default function SuperAdminDashboard() {
                 </thead>
                 <tbody className="text-sm">
                   <tr className="border-b">
-                    <td className="p-3 font-medium">Jean Dupont</td>
-                    <td className="p-3">jdupont</td>
+                    <td className="p-3 font-medium">Olomgba Ricoeur</td>
+                    <td className="p-3">oricoeur</td>
                     <td className="p-3"><span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Agent</span></td>
-                    <td className="p-3">Agence Centrale</td>
+                    <td className="p-3">Agence Centre-ville</td>
                     <td className="p-3 text-blue-600 cursor-pointer hover:underline">Modifier</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-3 font-medium">Marie Curie</td>
-                    <td className="p-3">mcurie</td>
+                    <td className="p-3 font-medium">Aminata Bâ</td>
+                    <td className="p-3">abâ</td>
                     <td className="p-3"><span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Chef Agence</span></td>
-                    <td className="p-3">Agence Nord</td>
+                    <td className="p-3">Agence Km5</td>
                     <td className="p-3 text-blue-600 cursor-pointer hover:underline">Modifier</td>
                   </tr>
                 </tbody>

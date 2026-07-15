@@ -1,72 +1,112 @@
 import uuid
 from django.db import models
-from django.utils import timezone
 
+class T_Banque(models.Model):
+    Bnq_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
+    Bnq_nom = models.CharField(max_length=100)
+    Bnq_code = models.CharField(max_length=20, unique=True)
+    Bnq_siegeSocial = models.CharField(max_length=255)
 
-class SyncHistory(models.Model):
-    class SyncStatus(models.TextChoices):
-        PENDING = 'PENDING', 'En cours'
-        SUCCESS = 'SUCCESS', 'Succès'
-        FAILED = 'FAILED', 'Échec'
-        PARTIAL = 'PARTIAL', 'Succès partiel'
-    
-    #Identifiant unique de la transaction (clé primaire non prédictible)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-   
-    # Horodatage précis
-    start_time = models.DateTimeField(default=timezone.now, verbose_name="Debut de la synchronisation")
-    end_time = models.DateTimeField(null=True, blank=True, verbose_name="Fin de la synchronisation")
-    
-    # Statut du cycle de synchronisation
-    status = models.CharField(
-        max_length=15,
-        choices=SyncStatus.choices,
-        default=SyncStatus.PENDING,
-        verbose_name="Statut"
-    )
-    
-    # Métriques de volume pour les rapports de performance
-    records_processed = models.IntegerField(
-        default=0,
-        verbose_name="Nombre de tickets traités")
-    
-    # Traçabilité technique en cas d'anomalie
-    error_message = models.TextField(
-        null=True,
-        blank=True,
-        verbose_name="Rapport d'erreur / Stacktrace"
-    )
-    
-   # Gestion de la résilience (stratégie de rejeu) 
-    attempt_number = models.PositiveIntegerField(
-        default=1,
-        verbose_name="Numéro de tentative"
-   )
-   
-    class Meta:
-        verbose_name = "Historique de synchronisation"
-        verbose_name_plural = "Historiques de synchronisation"
-        ordering = ['-start_time']
-    
+    def ajouterAgence(self):
+        pass
+
+    def consulterStatistiqueGlobales(self):
+        pass
+
     def __str__(self):
-        return f"Sync {self.id} - {self.status} ({self.start_time.strftime('%Y-%m-%d %H:%M:%S')})"
+        return self.Bnq_nom
+
+class T_Agence(models.Model):
+    Agc_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
+    banque = models.ForeignKey(T_Banque, on_delete=models.CASCADE, related_name='agences')
+    Agc_nom = models.CharField(max_length=100)
+    Agc_adresse = models.CharField(max_length=255)
+    Agc_statut = models.CharField(max_length=50) # StatutAgence
+    Agc_synchronisationActive = models.BooleanField(default=True)
+
+    def ouvrir(self):
+        pass
+        
+    def fermer(self):
+        pass
+        
+    def configurerServices(self):
+        pass
+
+    def __str__(self):
+        return self.Agc_nom
+
+class T_ServiceMetier(models.Model):
+    SM_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
+    SM_nom = models.CharField(max_length=100)
+    SM_description = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.SM_nom
+
+class T_File(models.Model):
+    FI_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
+    service_metier = models.ForeignKey(T_ServiceMetier, on_delete=models.CASCADE, related_name='files')
+    FI_code = models.CharField(max_length=20)
+    FI_nom = models.CharField(max_length=100)
+    FI_priorite = models.IntegerField(default=0)
+    FI_statut = models.CharField(max_length=50) # StatutFile
+
+    def ouvrir(self):
+        pass
+        
+    def fermer(self):
+        pass
+        
+    def obtenirNombreAttente(self):
+        return self.tickets.filter(T_statut="EnAttente").count()
+
+    def __str__(self):
+        return self.FI_nom
+
+class T_Ticket(models.Model):
+    T_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
+    file_attente = models.ForeignKey(T_File, on_delete=models.CASCADE, related_name='tickets')
+    T_numero = models.IntegerField()
+    T_dateEmission = models.DateTimeField(auto_now_add=True)
+    T_priorite = models.IntegerField(default=0)
+    T_statut = models.CharField(max_length=50) # StatutTicket
+
+    def appeler(self):
+        pass
+        
+    def transfere(self, file_cible):
+        pass
+
+    def __str__(self):
+        return str(self.T_numero)
+
+class T_Guichet(models.Model):
+    G_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
+    agence = models.ForeignKey(T_Agence, on_delete=models.CASCADE, related_name='guichets')
+    G_numero = models.IntegerField()
+    G_statut = models.CharField(max_length=50) # StatutGuichet
+
+    def activer(self):
+        pass
+        
+    def desactiver(self):
+        pass
+
+    def __str__(self):
+        return f"Guichet {self.G_numero}"
+
+class T_AffectationGuichet(models.Model):
+    AG_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
+    guichet = models.ForeignKey(T_Guichet, on_delete=models.CASCADE)
+    file_attente = models.ForeignKey(T_File, on_delete=models.CASCADE)
     
-    @property
-    def duration(self):
-        """Calcule la durée d'exécution en secondes."""
-        if self.end_time:
-            return (self.end_time - self.start_time).total_seconds()
-        return None
+    # Référence externe : T_Utilisateur (qui se trouve dans auth_service)
+    U_id_agent = models.CharField(max_length=50)
     
-    def mark_as_success(self, records_count):
-        """Clôture la synchronisation en succès."""
-        self.status = self.SyncStatus.SUCCESS
-        self.records_processed = records_count
-        self.save()
-    
-    def mark_as_failed(self, error_log):
-        """Clôture la synchronisation en échec avec sauvegarde du log."""
-        self.status = self.SyncStatus.FAILED
-        self.error_message = error_log
-        self.end_time = timezone.now()
-        self.save()
+    AG_dateDebut = models.DateTimeField(auto_now_add=True)
+    AG_dateFin = models.DateTimeField(null=True, blank=True)
+    AG_actif = models.BooleanField(default=True)
+
+    def validerAffectation(self):
+        pass
