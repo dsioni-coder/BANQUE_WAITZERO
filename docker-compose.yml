@@ -76,6 +76,8 @@ services:
       - db_queue # Empêche le démarrage si la base de données n'est pas prête
     networks:
       - agency_network
+    extra_hosts:
+      - "api.banquecentrale.local:host-gateway"
 
   gateway:
     image: nginx:alpine

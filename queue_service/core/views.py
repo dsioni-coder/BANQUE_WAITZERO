@@ -3,7 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
-from .models import ServiceCategory, Counter, Ticket
+# from .models import ServiceCategory, Counter, Ticket
 from .serializers import ServiceCategorySerializer, CounterSerializer, TicketSerializer
 
 class ServiceCategoryViewSet(viewsets.ModelViewSet):

@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # ==========================================
 # GESTION DES DROITS (STRICTEMENT SELON UML)
@@ -44,28 +44,48 @@ class T_GroupeUtilisateur(models.Model):
 # ==========================================
 
 class T_UtilisateurManager(BaseUserManager):
-    def create_user(self, U_login, U_motDePasse=None, **extra_fields):
-        if not U_login:
-            raise ValueError('Le login est obligatoire')
-        user = self.model(U_login=U_login, **extra_fields)
-        user.set_password(U_motDePasse) # Gère le hachage sécurisé du mot de passe
+    # Tout est intercepté dynamiquement par **extra_fields pour s'adapter à USERNAME_FIELD
+    def create_user(self, password=None, **extra_fields):
+        # On récupère le nom exact du champ défini par USERNAME_FIELD dans le modèle
+        champ_identifiant = self.model.USERNAME_FIELD
+        
+        if not extra_fields.get(champ_identifiant):
+            raise ValueError(f"Le champ {champ_identifiant} est obligatoire.")
+        
+        user = self.model(**extra_fields)
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
-class T_Utilisateur(AbstractBaseUser):
+    def create_superuser(self, password=None, **extra_fields):
+        # On force les droits d'administration requis par Django
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError("Un superutilisateur doit avoir is_staff=True.")
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError("Un superutilisateur doit avoir is_superuser=True.")
+
+        # On transfère le tout à create_user
+        return self.create_user(password=password, **extra_fields)
+
+# Héritage de AbstractBaseUser ET de PermissionsMixin (ajoute is_superuser et la gestion des droits)
+class T_Utilisateur(AbstractBaseUser, PermissionsMixin):
     U_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=50, editable=False)
     U_nom = models.CharField(max_length=100)
     U_prenom = models.CharField(max_length=100)
     U_login = models.CharField(max_length=150, unique=True)
     
-    # U_motDePasse : Django le gère nativement via le champ 'password' de AbstractBaseUser,
-    # mais nous respectons votre logique métier.
+    # Champs d'état requis pour l'administration Django
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     
-    # Relation : Un Utilisateur appartient à un ou plusieurs Groupes (selon diagramme 1..* vers 1..*)
+    # Relation : Un Utilisateur appartient à un ou plusieurs Groupes
     groupes = models.ManyToManyField(T_GroupeUtilisateur, related_name='utilisateurs')
     
-    # Référence externe : T_Agence (qui se trouve dans queue_service)
-    # C'est la ligne "emploie" du diagramme
+    # Référence externe : T_Agence (située dans queue_service)
     Agc_id = models.CharField(max_length=50, null=True, blank=True)
 
     objects = T_UtilisateurManager()
@@ -73,10 +93,10 @@ class T_Utilisateur(AbstractBaseUser):
     USERNAME_FIELD = 'U_login'
 
     def authentifier(self):
-        pass # Implémentation métier
+        pass # Implémentation métier future
 
     def seDeconnecter(self):
-        pass # Implémentation métier
+        pass # Implémentation métier future
 
     def __str__(self):
         return f"{self.U_prenom} {self.U_nom}"
