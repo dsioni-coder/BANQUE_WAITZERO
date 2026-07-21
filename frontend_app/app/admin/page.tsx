@@ -53,18 +53,18 @@ export default function SuperAdminDashboard() {
                 </thead>
                 <tbody className="text-sm">
                   <tr className="border-b">
-                    <td className="p-3 font-medium">Olomgba Ricoeur</td>
-                    <td className="p-3">oricoeur</td>
-                    <td className="p-3"><span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Agent</span></td>
-                    <td className="p-3">Agence Centre-ville</td>
-                    <td className="p-3 text-blue-600 cursor-pointer hover:underline">Modifier</td>
+                    <td className="p-3 font-medium text-black">Olomgba Ricoeur</td>
+                    <td className="p-3 text-black">oricoeur</td>
+                    <td className="p-3"><span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs text-black">Agent</span></td>
+                    <td className="p-3 text-black">Agence Centre-ville</td>
+                    <td className="p-3 text-blue-600 cursor-pointer hover:underline text-black">Modifier</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-3 font-medium">Aminata Bâ</td>
-                    <td className="p-3">abâ</td>
-                    <td className="p-3"><span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Chef Agence</span></td>
-                    <td className="p-3">Agence Km5</td>
-                    <td className="p-3 text-blue-600 cursor-pointer hover:underline">Modifier</td>
+                    <td className="p-3 font-medium text-black">Aminata Bâ</td>
+                    <td className="p-3 text-black">abâ</td>
+                    <td className="p-3 text-black"><span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Chef Agence</span></td>
+                    <td className="p-3 text-black">Agence Km5</td>
+                    <td className="p-3 text-blue-600 cursor-pointer hover:underline text-black">Modifier</td>
                   </tr>
                 </tbody>
               </table>
@@ -85,11 +85,11 @@ export default function SuperAdminDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-5 rounded border-l-4 border-purple-500 shadow-sm">
                   <p className="text-slate-500 text-sm">Volume Tickets (National)</p>
-                  <p className="text-2xl font-bold mt-1">1,245</p>
+                  <p className="text-2xl font-bold mt-1 text-purple-500">1,245</p>
                 </div>
                 <div className="bg-white p-5 rounded border-l-4 border-green-500 shadow-sm">
                   <p className="text-slate-500 text-sm">Temps Moyen (National)</p>
-                  <p className="text-2xl font-bold mt-1">12m 30s</p>
+                  <p className="text-2xl font-bold mt-1 text-green-500">12m 30s</p>
                 </div>
                 <div className="bg-white p-5 rounded border-l-4 border-red-500 shadow-sm">
                   <p className="text-slate-500 text-sm">Agences Hors-Ligne</p>

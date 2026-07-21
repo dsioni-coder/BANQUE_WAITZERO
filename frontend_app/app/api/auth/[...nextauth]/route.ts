@@ -16,7 +16,7 @@ export const authOptions: AuthOptions = {
 
         try {
           // 👉 On appelle le service auth de Django via le réseau interne Docker !
-          const res = await fetch("http://agency_auth_service:8000/api/auth/login/", {
+          const res = await fetch("http://127.0.0.1:8001/api/auth/login/", {
             method: "POST",
             body: JSON.stringify({
               U_login: credentials.U_login,
@@ -30,6 +30,7 @@ export const authOptions: AuthOptions = {
           if (res.ok && tokens.access) {
             // On décode le Access Token pour lire le payload personnalisé
             const decoded: any = jwtDecode(tokens.access)
+            console.log("🔍 CONTENU DU TOKEN DEPUIS DJANGO :", decoded)
 
             // On retourne l'objet User complet que NextAuth va stocker dans le JWT de session
             return {
